@@ -6,22 +6,30 @@
 
 namespace object {
 
+	struct material_t {
+		double difuse_factor;
+		double specular_factor;
+		double specular_power;
+		double reflective_factor;
+		math::vec3_t albedo_color;
+	};
 	struct hit_info_t {
 		bool hit;
 		double t;
-		math::vec3_t obj_color;
+		material_t material;
 		math::vec3_t normal;
 	};
 
 	struct sphere_t {
 		math::vec3_t pos;
-		math::vec3_t color;
+		material_t material;
 		double radius;
 	};
 
 	struct plane_t {
 		math::vec3_t pos;
 		math::vec3_t normal;
+		material_t material;
 	};
 
 	hit_info_t sphere_intersect(const math::ray_t& ray, const sphere_t& sphere);

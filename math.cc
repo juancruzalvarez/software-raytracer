@@ -19,7 +19,7 @@ namespace math {
 		return fabs(lenght(b - a));
 	}
 
-	double dot_product(const vec3_t& a, const vec3_t& b) {
+	double dot(const vec3_t& a, const vec3_t& b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 

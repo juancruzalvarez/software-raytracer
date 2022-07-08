@@ -7,7 +7,7 @@
 #include "stb_image.h"
 
 #define STBI_MSC_SECURE_CRT
-#define __STDC_LIB_EXT1__
+//#define __STDC_LIB_EXT1__
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
@@ -24,18 +24,25 @@ int main() {
 		std::cout << "Unable to load scene. Exiting program.";
 		return -1;
 	}
-	scene.camera = scene::camera_t{ math::vec3_t{0,0,0}, 0, 0 };
-	scene.spheres.push_back({ {0,0,-5}, {0.3,0.5,1}, 0.51 });
-	scene.spheres.push_back({ {2,1,-4}, {0.7,0.2,0.141}, 0.81 });
-	scene.point_lights.push_back({ { 0,-5,0 }, {0.91,0.61,0.1},0.8 });
-	scene.point_lights.push_back({ { 4,1,-3 }, {0.51,0.921,0.71},1.48 });
-
+	//up is +y
+	//forwards its -z
+	//right is +x
+	//x_rot + -> camera looks up
+	scene.camera = scene::camera_t{ math::vec3_t{0,3,0}, -0.3, 0 };
+	scene.spheres.push_back({ {0,1,-5}, {0.8, 0.2, 1.2, 0, {0.9,0.30,0.40}}, 1 });
+	scene.spheres.push_back({ {2,1,-4}, {0.2, 1.8, 5.2, 0, {0.1,0.30,0.90}}, 1.81 });
+	scene.planes.push_back({{0,0,0},{0,1,0},{0.8, 0.2, 1.2, 0, {0.1,0.30,0.40}}});
+	scene.planes.push_back({{0,0,-15},{0,0,1},{0.8, 0.2, 1.2, 0, {0.1,0.30,0.40}}});
+	scene.point_lights.push_back({ { -20,20, 20 }, {0.91,0.79,0.78},1.8 });
+	scene.point_lights.push_back({ { 0,10, 10 }, {1,1,1},0.48 });
+	scene.ambient_light_color = {1,1,1};
+	scene.ambient_light_factor = 0.2;
 	raytracer::config_t config{scene, img_width, img_height, FOV};
 
 	uint8_t* pixels = new uint8_t[img_width * img_height * 3];
 
 	int index = 0;
-	for (int j = img_height - 1; j >= 0; --j)
+	for (int j = 0; j < img_height; ++j)
 	{
 		for (int i = 0; i < img_width; ++i)
 		{

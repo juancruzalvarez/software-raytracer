@@ -25,30 +25,47 @@ namespace raytracer {
 			return math::ray_t{ config.scene.camera.pos, ray_dir };
 		}
 
+		object::hit_info_t trace_ray(const scene::scene_t &scene, const math::ray_t &ray){
+			object::hit_info_t closest_hit{ false, 10000000000000, {0, 0, 0} };
+			for (const auto& sphere : scene.spheres) {
+				auto current_hit = object::sphere_intersect(ray, sphere);
+				if (current_hit.hit && current_hit.t < closest_hit.t) {
+					closest_hit = current_hit;
+				}
+			}
+			for (const auto& plane : scene.planes) {
+				auto current_hit = object::plane_intersect(ray, plane);
+				if (current_hit.hit && current_hit.t < closest_hit.t) {
+					closest_hit = current_hit;
+				}
+			}
+			return closest_hit;
+		}
+
 	};
 
 	math::vec3_t calculate_pixel(const config_t& config, int pixel_x, int pixel_y) {
 		math::ray_t ray = get_ray(config, pixel_x, pixel_y);
-		//std::cout << "Ray_dir:" << ray.direction.x << " " << ray.direction.y << " " << ray.direction.z<<"\n";
-		object::hit_info_t closest_hit{ false, 10000000000000, {0, 0, 0} };
-		for (const auto& sphere : config.scene.spheres) {
-			auto current_hit = object::sphere_intersect(ray, sphere);
-			if (current_hit.hit && current_hit.t < closest_hit.t) {
-				closest_hit = current_hit;
-			}
-		}
-
+		object::hit_info_t closest_hit = trace_ray(config.scene, ray);
 		if (!closest_hit.hit) {
-			return closest_hit.obj_color; //bg color
+			return {0.0, 0.0, 0.0};	//bg color
 		}
-
-		math::vec3_t light_recived{0.0,0.0,0.0};
+		math::vec3_t light_recived = config.scene.ambient_light_color* config.scene.ambient_light_factor;
 		math::vec3_t hit_point = ray.origin + ray.direction * closest_hit.t;
 		for (const auto& light : config.scene.point_lights) {
-			double diffuse = std::max(math::dot_product(closest_hit.normal, normalized(light.pos-hit_point)), 0.0);
-			light_recived = light_recived + light.color * light.intensity * diffuse;
+			math::vec3_t dir_to_light = normalized(light.pos-hit_point);
+			math::ray_t shadow_ray{hit_point + closest_hit.normal * math::EPSILON, dir_to_light};
+			bool visible = !trace_ray(config.scene, shadow_ray).hit;
+			if(visible){
+				//math::vec3_t reflection_dir = -ray.direction - closest_hit.normal*2*(math::dot(-ray.direction, closest_hit.normal));
+				double diffuse = std::max(math::dot(closest_hit.normal, dir_to_light), 0.0);
+				double specular = std::max(math::dot(closest_hit.normal, (-ray.direction+dir_to_light)/2), 0.0);
+				specular = pow(specular, closest_hit.material.specular_power);
+				light_recived += light.color * light.intensity * diffuse * closest_hit.material.difuse_factor;
+				light_recived += light.color * light.intensity * specular * closest_hit.material.specular_factor;
+			}
 		}
-		return math::clamp(closest_hit.obj_color * light_recived, 1.0);
+		return math::clamp(closest_hit.material.albedo_color * light_recived, 1.0);
 	}
 
 	
