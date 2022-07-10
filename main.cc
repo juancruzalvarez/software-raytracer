@@ -7,7 +7,7 @@
 #include "stb_image.h"
 
 #define STBI_MSC_SECURE_CRT
-//#define __STDC_LIB_EXT1__
+#define __STDC_LIB_EXT1__
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
@@ -28,12 +28,28 @@ int main() {
 	//forwards its -z
 	//right is +x
 	//x_rot + -> camera looks up
+	object::material_t diffuse_mat{
+		1,0,0,0,{1,0,0}
+	};
+	object::material_t diffuse_and_specular_mat{
+		0.5,0.5,200,0,{0,1,0}
+	};
+	object::material_t very_specular_mat{
+		0.2,0.8,2000.5,0,{0,1,1}
+	};
+	object::material_t reflective_mat{
+		0.8,0,0,1,{1,0,1}
+	};
+
+
 	scene.camera = scene::camera_t{ math::vec3_t{0,3,0}, -0.3, 0 };
-	scene.spheres.push_back({ {0,1,-5}, {0.8, 0.2, 1.2, 0, {0.9,0.30,0.40}}, 1 });
-	scene.spheres.push_back({ {2,1,-4}, {0.2, 1.8, 5.2, 0, {0.1,0.30,0.90}}, 1.81 });
-	scene.planes.push_back({{0,0,0},{0,1,0},{0.8, 0.2, 1.2, 0, {0.1,0.30,0.40}}});
-	scene.planes.push_back({{0,0,-15},{0,0,1},{0.8, 0.2, 1.2, 0, {0.1,0.30,0.40}}});
-	scene.point_lights.push_back({ { -20,20, 20 }, {0.91,0.79,0.78},1.8 });
+	scene.spheres.push_back({ {0,1,-5}, reflective_mat, 1 });
+	scene.spheres.push_back({ {3,2,-7}, diffuse_mat, 1.5 });
+	scene.spheres.push_back({ {-3,1,-4}, very_specular_mat, 0.7 });
+	scene.spheres.push_back({ {4,3,-4}, diffuse_and_specular_mat, 1.7 });
+	scene.planes.push_back({{0,0,0},{0,1,0},{0.8, 0.2, 1.2, 0, {0,0.78,1.0}}});
+	scene.planes.push_back({{0,0,-15},{0,0,1},{0.8, 0.2, 1.2, 0, {0,0.780,1.0}}});
+	scene.point_lights.push_back({ { -20,20, 20 }, {0.81,0.79,0.98},1.8 });
 	scene.point_lights.push_back({ { 0,10, 10 }, {1,1,1},0.48 });
 	scene.ambient_light_color = {1,1,1};
 	scene.ambient_light_factor = 0.2;

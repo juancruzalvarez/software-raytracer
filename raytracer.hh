@@ -4,6 +4,7 @@
 #include "scene.hh"
 namespace raytracer {
 
+	const int MAX_RECURSION_DEPTH = 1;
 	
 
 	struct config_t {
