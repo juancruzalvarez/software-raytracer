@@ -56,9 +56,9 @@ namespace raytracer {
 				bool visible = !trace_ray(scene, shadow_ray).hit;
 				if (visible) {
 
-					math::vec3_t reflection_dir = -ray.direction - closest_hit.normal*2*(math::dot(-ray.direction, closest_hit.normal));
+					math::vec3_t reflection_dir = ray.direction - closest_hit.normal*2*(math::dot(ray.direction, closest_hit.normal));
 					double diffuse = std::max(math::dot(closest_hit.normal, dir_to_light), 0.0);
-					double specular = std::max(math::dot(-ray.direction, reflection_dir), 0.0);
+					double specular = std::max(math::dot(ray.direction, reflection_dir), 0.0);
 					specular = pow(specular, closest_hit.material.specular_power);
 					light_recived += light.color * light.intensity * diffuse * closest_hit.material.difuse_factor;
 					light_recived += light.color * light.intensity * specular * closest_hit.material.specular_factor;
@@ -67,7 +67,7 @@ namespace raytracer {
 					}
 				}
 			}
-			return math::clamp(reflection*closest_hit.material.reflective_factor +(closest_hit.material.albedo_color * light_recived)*(1-closest_hit.material.reflective_factor), 1.0);
+			return math::clamp(reflection*closest_hit.material.reflective_factor +(closest_hit.material.albedo_color * light_recived), 1.0);
 		}
 
 
